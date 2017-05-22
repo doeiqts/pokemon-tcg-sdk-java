@@ -1,6 +1,12 @@
-package com.doeiqts.pokemon.tcg.sdk;
+package com.doeiqts.pokemon.tcg.sdk.v1;
 
-import com.doeiqts.pokemon.tcg.domain.Card;
+import com.doeiqts.pokemon.tcg.domain.v1.Card;
+import com.doeiqts.pokemon.tcg.domain.v1.Cards;
+import com.doeiqts.pokemon.tcg.domain.v1.Set;
+import com.doeiqts.pokemon.tcg.domain.v1.Sets;
+import com.doeiqts.pokemon.tcg.domain.v1.Subtypes;
+import com.doeiqts.pokemon.tcg.domain.v1.Supertypes;
+import com.doeiqts.pokemon.tcg.domain.v1.Types;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -14,7 +20,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
 
-public class CardFactory {
+public class PokemonTcgApi {
     private final Client client = Client.create(generateClientConfig());
 
     public Card getCard(String id) {
@@ -30,7 +36,7 @@ public class CardFactory {
 
     public List<Card> searchCards(MultivaluedMap<String, String> searchCriteria) {
         WebResource webResource = client
-                .resource("https://api.pokemontcg.io/v1/cards/")
+                .resource("https://api.pokemontcg.io/v1/cards")
                 .queryParams(searchCriteria);
 
         ClientResponse response = callAPI(webResource);
@@ -40,10 +46,65 @@ public class CardFactory {
         return response.getEntity(Cards.class);
     }
 
+    public Set getSet(String setCode) {
+        WebResource webResource = client
+                .resource("https://api.pokemontcg.io/v1/sets/" + setCode);
+
+        ClientResponse response = callAPI(webResource);
+
+        handleErrors(response);
+
+        return response.getEntity(Set.class);
+    }
+
+    public List<Set> getSets(MultivaluedMap<String, String> searchCriteria) {
+        WebResource webResource = client
+                .resource("https://api.pokemontcg.io/v1/sets")
+                .queryParams(searchCriteria);
+
+        ClientResponse response = callAPI(webResource);
+
+        handleErrors(response);
+
+        return response.getEntity(Sets.class);
+    }
+
+    public List<String> getTypes() {
+        WebResource webResource = client
+                .resource("https://api.pokemontcg.io/v1/types");
+
+        ClientResponse response = callAPI(webResource);
+
+        handleErrors(response);
+
+        return response.getEntity(Types.class);
+    }
+
+    public List<String> getSupertypes() {
+        WebResource webResource = client
+                .resource("https://api.pokemontcg.io/v1/supertypes");
+
+        ClientResponse response = callAPI(webResource);
+
+        handleErrors(response);
+
+        return response.getEntity(Supertypes.class);
+    }
+
+    public List<String> getSubtypes() {
+        WebResource webResource = client
+                .resource("https://api.pokemontcg.io/v1/subtypes");
+
+        ClientResponse response = callAPI(webResource);
+
+        handleErrors(response);
+
+        return response.getEntity(Subtypes.class);
+    }
+
     private ClientConfig generateClientConfig() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
         objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 
         JacksonJaxbJsonProvider jacksonProvider
